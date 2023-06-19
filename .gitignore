@@ -1,0 +1,6 @@
+.idea
+.vscode/
+vendor/
+*.out
+.DS_Store
+/docs/diagram/.structurizr
