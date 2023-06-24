@@ -40,7 +40,7 @@ func (m *Message) Data() interface{} {
 
 type HandlerFunc func(ctx context.Context, msg *Message) error
 
-type Bus struct {
+type LocalQueue struct {
 	mu          sync.RWMutex
 	subscribers map[string][]HandlerFunc
 	pool        *ants.Pool
@@ -48,7 +48,7 @@ type Bus struct {
 	errHandler  func(ctx context.Context, err error)
 }
 
-func NewBus() *Bus {
+func NewBus() *LocalQueue {
 	p, err := ants.NewPool(poolSize, ants.Option(func(opts *ants.Options) {
 		opts.ExpiryDuration = time.Second
 		opts.Nonblocking = false
@@ -57,7 +57,7 @@ func NewBus() *Bus {
 	if err != nil {
 		panic(fmt.Errorf("bus: init pool failed: %v", err))
 	}
-	return &Bus{
+	return &LocalQueue{
 		subscribers: make(map[string][]HandlerFunc),
 		pool:        p,
 		wg:          new(sync.WaitGroup),
@@ -68,7 +68,7 @@ func NewBus() *Bus {
 }
 
 // Publish message to the bus, this message will be delivered to all subscribers of the message's topic.
-func (b *Bus) Publish(ctx context.Context, msg *Message) {
+func (b *LocalQueue) Publish(ctx context.Context, msg *Message) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 
@@ -102,7 +102,7 @@ func (b *Bus) Publish(ctx context.Context, msg *Message) {
 }
 
 // Subscribe to a topic, when a message is published to that topic, it will be pass to the given HandlerFunc
-func (b *Bus) Subscribe(topic string, h HandlerFunc) {
+func (b *LocalQueue) Subscribe(topic string, h HandlerFunc) {
 	b.mu.Lock()
 	b.subscribers[topic] = append(b.subscribers[topic], h)
 	b.mu.Unlock()
@@ -110,13 +110,13 @@ func (b *Bus) Subscribe(topic string, h HandlerFunc) {
 
 // Stop wait for all running handlers to finish their jobs before return,
 // Stop should be called after stop all other incoming channels like gRPC servers or Kafka consumers
-func (b *Bus) Stop() {
+func (b *LocalQueue) Stop() {
 	b.wg.Wait()
 	b.pool.Release()
 }
 
 // SetErrHandler a custom error handler when subscriber return error or panic.
 // By default, error will be log.
-func (b *Bus) SetErrHandler(h func(ctx context.Context, err error)) {
+func (b *LocalQueue) SetErrHandler(h func(ctx context.Context, err error)) {
 	b.errHandler = h
 }

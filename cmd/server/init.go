@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ldhk/tonton-be/pkg/openapi"
 	"github.com/ldhk/tonton-be/pkg/telemetry/logging"
 	"github.com/ldhk/tonton-be/pkg/telemetry/logging/zap"
 	"github.com/ldhk/tonton-be/pkg/telemetry/monitor"
@@ -15,6 +16,14 @@ import (
 
 func (s *Server) init() {
 	s.initLogging()
+
+	checkErr := func(name string, err error) {
+		if err != nil {
+			s.l.Fatalf("init %s failed: %+v", name, err)
+		}
+	}
+
+	checkErr("module", s.initModule())
 	s.initHTTP()
 }
 
@@ -59,9 +68,20 @@ func (s *Server) initHTTP() {
 	monitor.Gin(e, s.config.Tracing.ServiceName)
 	e.Use(gin.Recovery())
 
+	s.module.openAPI.Route(e)
+
 	s.http = &http.Server{
 		Addr:              ":8080",
 		Handler:           e,
 		ReadHeaderTimeout: 60 * time.Second,
 	}
+}
+
+func (s *Server) initModule() error {
+	openApi, err := openapi.InitModule(openapi.Config{})
+	if err != nil {
+		return err
+	}
+	s.module.openAPI = openApi
+	return nil
 }

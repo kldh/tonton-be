@@ -18,7 +18,7 @@ type Job interface {
 type HandlerFunc func(ctx context.Context, j Job) error
 
 type Queue struct {
-	b *internal.Bus
+	b *internal.LocalQueue
 
 	mu          sync.Mutex
 	hasListener map[string]struct{}

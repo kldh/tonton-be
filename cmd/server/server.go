@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/ldhk/tonton-be/pkg/openapi"
 	"github.com/ldhk/tonton-be/pkg/telemetry/logging"
 )
 
@@ -24,7 +25,9 @@ type Server struct {
 
 	client struct{}
 
-	module struct{}
+	module struct {
+		openAPI *openapi.Module
+	}
 
 	database struct{}
 }
