@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ldhk/tonton-be/tonton-be/pkg/messaging/internal"
+	"github.com/ldhk/tonton-be/pkg/messaging/internal"
 )
 
 var errMultipleListeners = errors.New("queue must have only 1 listener")

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ldhk/tonton-be/tonton-be/pkg/telemetry/logging"
+	"github.com/ldhk/tonton-be/pkg/telemetry/logging"
 	"github.com/panjf2000/ants/v2"
 )
 

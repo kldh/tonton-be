@@ -3,7 +3,7 @@ package zap
 import (
 	"fmt"
 
-	"github.com/ldhk/tonton-be/tonton-be/pkg/telemetry/logging"
+	"github.com/ldhk/tonton-be/pkg/telemetry/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
