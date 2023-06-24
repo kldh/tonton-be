@@ -62,6 +62,10 @@ func (s *Server) initHTTP() {
 
 	s.l.Info("http.server: initializing")
 	e := gin.New()
+	e.GET("/ping", func(c *gin.Context) {
+		c.Writer.WriteHeader(200)
+		c.Writer.WriteString("pong")
+	})
 	e.GET("/health", func(c *gin.Context) { c.Writer.WriteHeader(200) })
 	e.GET("/info", func(c *gin.Context) { c.Writer.WriteHeader(200) })
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
